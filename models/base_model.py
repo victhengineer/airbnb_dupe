@@ -10,12 +10,21 @@ class BaseModel:
     ''' BaseModel - Base class
     Defines all common attributes and methods for other classes
     '''
-    def __init__(self):
-        ''' Initialize public instance attributes
+    def __init__(self, *args, **kwargs):
+        ''' Initialize public instance attributes &
+        Deserializes a dictionary rep of an instance to an instance
         '''
-        self.id = str(uuid.uuid4())
-        self.created_at = datetime.now()
-        self.updated_at = self.created_at
+        if kwargs:
+            for key, value in kwargs.items():
+                if key != '__class__':
+                    if key in ['created_at', 'updated_at']:
+                        setattr(self, key, datetime.fromisoformat(value))
+                    else:
+                        setattr(self, key, value)
+        else:
+            self.id = str(uuid.uuid4())
+            self.created_at = datetime.now()
+            self.updated_at = self.created_at
 
     def save(self):
         ''' Updates updated_at attribute
