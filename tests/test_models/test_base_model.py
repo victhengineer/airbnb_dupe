@@ -88,15 +88,21 @@ class TestBaseModelTimestamps(unittest.TestCase):
 
     def test_created_equals_updated_initially(self):
         ''' Test that created_at and update_at are equal initially
-        as intended
         '''
-        self.assertEqual(self.test_model.created_at, self.test_model.updated_at)
+        self.assertEqual(
+                self.test_model.created_at,
+                self.test_model.updated_at
+                )
 
     def test_update_at_changes_on_update(self):
         ''' Test that update changes when an instance is updated
         '''
         self.test_model.save()
-        self.assertGreater(self.test_model.updated_at, self.test_model.created_at)
+        self.assertGreater(
+                self.test_model.updated_at,
+                self.test_model.created_at
+                )
+
 
 # BaseModel Serialization Tests
 class TestBaseModelSerializationToDict(unittest.TestCase):
@@ -149,3 +155,34 @@ class TestBaseModelSerializationToDict(unittest.TestCase):
         dict_obj = self.test_model.to_dict()
         self.assertIn('name', dict_obj)
         self.assertEqual(dict_obj.get('name'), 'My Model')
+
+
+# Base Class Deserialization Test
+class TestBaseModelDeserializationFromDict(unittest.TestCase):
+    ''' Test Base Class Deserialization logics
+    '''
+    def setUp(self):
+        ''' setUp - Sets up before every test
+        '''
+        self.test_model = BaseModel()
+        self.test_model.name = 'Test Model'
+        self.test_obj = self.test_model.to_dict()
+        self.new_test_model = BaseModel(**self.test_obj)
+
+    def tearDown(self):
+        ''' tearDown - Tidies up after a test
+        '''
+        del self.test_model
+        del self.test_obj
+        del self.new_test_model
+
+    def test_class_key_is_ignored(self):
+        ''' Test that __class__ is ignored in deserialization
+        '''
+        self.assertFalse('__class__' in self.new_test_model.__dict__)
+
+    def test_timestamps_converted_datetime(self):
+        ''' Test that timestamps are converted to datetime from iso strings
+        '''
+        self.assertTrue(isinstance(self.new_test_model.created_at, datetime))
+        self.assertTrue(isinstance(self.new_test_model.updated_at, datetime))
