@@ -5,6 +5,7 @@ import uuid
 import unittest
 from datetime import datetime
 from models.base_model import BaseModel
+from unittest.mock import patch
 
 
 class TestBaseModelId(unittest.TestCase):
@@ -13,7 +14,8 @@ class TestBaseModelId(unittest.TestCase):
     def setUp(self):
         '''Sets Up for a test
         '''
-        self.test_model = BaseModel()
+        with patch('models.storage.new'):
+            self.test_model = BaseModel()
 
     def tearDown(self):
         ''' Tidies up after every test
@@ -24,7 +26,8 @@ class TestBaseModelId(unittest.TestCase):
         ''' Test that the constructor __init__ does not fail
         '''
         try:
-            test_model_1 = BaseModel()
+            with patch('models.storage.new'):
+                test_model_1 = BaseModel()
         except Exception as e:
             self.fail(f"Constructor raised an exeption: {e}")
 
@@ -50,10 +53,11 @@ class TestBaseModelId(unittest.TestCase):
         ''' Test that generated IDs are unique
         '''
         ids = set()
-        for _ in range(1000):
-            with self.subTest(i=_):
-                self.assertNotIn(BaseModel().id, ids)
-                ids.add(BaseModel().id)
+        with patch('models.storage.new'):
+            for _ in range(1000):
+                with self.subTest(i=_):
+                    self.assertNotIn(BaseModel().id, ids)
+                    ids.add(BaseModel().id)
 
 
 # BaseModel Timestamps Tests
@@ -63,7 +67,8 @@ class TestBaseModelTimestamps(unittest.TestCase):
     def setUp(self):
         ''' setUp - Sets Up before every test
         '''
-        self.test_model = BaseModel()
+        with patch('models.storage.new'):
+            self.test_model = BaseModel()
 
     def tearDown(self):
         ''' tearDown - Tidies up after every test
@@ -94,7 +99,8 @@ class TestBaseModelTimestamps(unittest.TestCase):
                 self.test_model.updated_at
                 )
 
-    def test_update_at_changes_on_update(self):
+    @patch('models.storage.save')
+    def test_update_at_changes_on_update(self, mock_save):
         ''' Test that update changes when an instance is updated
         '''
         self.test_model.save()

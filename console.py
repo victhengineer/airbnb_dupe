@@ -5,9 +5,22 @@ import cmd
 import shlex
 from models import storage
 from models.base_model import BaseModel
+from models.user import User
+from models.state import State
+from models.city import City
+from models.amenity import Amenity
+from models.place import Place
+from models.review import Review
 
+# Class registry
 CLASSES = {
-    'BaseModel': BaseModel
+    'BaseModel': BaseModel,
+    'User': User,
+    'State': State,
+    'City': City,
+    'Amenity': Amenity,
+    'Place': Place,
+    'Review': Review
 }
 
 class HBNBCommand(cmd.Cmd):
@@ -23,12 +36,14 @@ class HBNBCommand(cmd.Cmd):
 
         if not args:
             print('** class name missing **')
-        elif args[0] not in CLASSES:
-            print("** class doesn't exist **")
         else:
-            my_model = BaseModel()
-            my_model.save()
-            print(my_model.id)
+            model_class = CLASSES.get(args[0])
+            if model_class:
+                my_model = model_class()
+                my_model.save()
+                print(my_model.id)
+            else:
+                print("** class doesn't exist **")
 
     def do_show(self, arg):
         ''' Print string representation of an instance based on class

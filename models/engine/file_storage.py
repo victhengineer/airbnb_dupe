@@ -5,10 +5,23 @@ Deserializes JSON to instances
 import json
 import os
 from models.base_model import BaseModel
+from models.user import User
+from models.state import State
+from models.city import City
+from models.amenity import Amenity
+from models.place import Place
+from models.review import Review
+
 
 # class registry
-classes = {
-        'BaseModel': BaseModel
+CLASSES = {
+        'BaseModel': BaseModel,
+        'User': User,
+        'State': State,
+        'City': City,
+        'Amenity': Amenity,
+        'Place': Place,
+        'Review': Review
         }
 
 
@@ -47,6 +60,6 @@ class FileStorage:
                 data = json.load(json_file)
                 for key, obj_dict in data.items():
                     class_name = obj_dict.get('__class__')
-                    cls = classes.get(class_name)
+                    cls = CLASSES.get(class_name)
                     if cls:
                         FileStorage.__objects[key] = cls(**obj_dict)
